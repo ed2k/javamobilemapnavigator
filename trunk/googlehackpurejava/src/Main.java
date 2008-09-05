@@ -125,15 +125,16 @@ public class Main {
   //-----------------------------------------------------------------------
   //java.exe  -Dhttp.proxyHost=www-proxy.lmc.ericsson.se  -Dhttp.proxyPort=80 -jar GoogleHackPureJava.jar 1792 14.30773333 50.1363111111 14.59328333 49.9937583333 4 praha 512
   // longmont  40.2035 -105.0552 40.1325 3 longmont 512
+  // montreal -73.9, -73.3 45.7 45.3
   public static void main(String[] args) throws Exception {
     Main m = new Main();
 
-    int    imSize   = 1792;
-    double lonStart = 14.307;
-    double latStart = 50.136;
-    double lonEnd   = 14.593;
-    double latEnd   = 49.993;
-    int    zoom     = 4;
+    int    imSizeW   = 1792;
+    double lonStart = -105.1556;
+    double latStart = 40.2035;
+    double lonEnd   = -105.0552;
+    double latEnd   = 40.1325;
+    int    zoom     = 3;
     String mapName  = "test";
     
     if(args.length<7){
@@ -141,7 +142,7 @@ public class Main {
       //return;
     } else {
 
-     imSize   = Integer.parseInt(args[0]);
+     imSizeW   = Integer.parseInt(args[0]);
      lonStart = Double.parseDouble(args[1]);
      latStart = Double.parseDouble(args[2]);
      lonEnd   = Double.parseDouble(args[3]);
@@ -153,8 +154,10 @@ public class Main {
     if(args.length>=8){
       tileSize = Integer.parseInt(args[7]);
     }
+    int imSizeH = (imSizeW*11/17)/256;
+    imSizeH = imSizeH * 256;
     //m.getImages(1792,1792,-10      ,60.0     ,20.0     ,30.0     ,7,"europe");
-    m.getImages(imSize,imSize,lonStart,latStart,lonEnd,latEnd,zoom,mapName);
+    m.getImages(imSizeW,imSizeH,lonStart,latStart,lonEnd,latEnd,zoom,mapName);
     m.prepareForTrekBuddy(mapName,zoom,tileSize);
   }
   //-----------------------------------------------------------------------

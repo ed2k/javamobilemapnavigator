@@ -1,0 +1,628 @@
+unit Unit1;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Menus, ExtCtrls;
+
+type
+  statu=(s00,sopen,smark);{s00 :original}
+  jiu=array[0..2,0..2 ]of boolean;
+  TMineform = class(TForm)
+    Panel1: TPanel;
+    minepic: TImage;
+    Image00: TImage;
+    Imagedead: TImage;
+    Imagemark: TImage;
+    Imageismine: TImage;
+    Imageerror: TImage;
+    Imagelaugh: TImage;
+    Imagecry: TImage;
+    Image_o: TImage;
+    Imagesuccess: TImage;
+    mainbutton: TImage;
+    Image00laugh: TImage;  {all above is block image}
+    MainMenu1: TMainMenu;
+    Game1: TMenuItem;
+    New1: TMenuItem;
+    N1: TMenuItem;
+    N10881: TMenuItem;
+    N4016161: TMenuItem;
+    N9930161: TMenuItem;
+    options1: TMenuItem;
+    mousedown1: TMenuItem;
+    Timer1: TTimer;
+    imageLed: TImage;
+    timelabel: TImage;
+    minelabel: TImage;
+    imageMm: TImage;
+    function  calcmines(i,j:integer):integer;{calculate how many mines around}
+    function  calcstatus(calcstatu:statu;i,j:integer):integer;
+     {caculate}
+    function ai_0:boolean;
+    function ai_1:boolean;
+    function ai_2:boolean;
+    function ai_3:boolean;
+    function modematch(x,y:jiu):boolean;
+    procedure fail;
+    procedure success;
+    procedure mark(i,j:integer);
+    procedure openmine(i,j:integer);
+    procedure start;
+    procedure draw(i,j:integer);
+    procedure FormCreate(Sender: TObject);
+    procedure minepicMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure minepicMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure Timer1Timer(Sender: TObject);
+    procedure New1Click(Sender: TObject);
+    procedure N10881Click(Sender: TObject);
+    procedure N4016161Click(Sender: TObject);
+    procedure N9930161Click(Sender: TObject);
+    procedure Panel1Resize(Sender: TObject);
+    procedure mousedown1Click(Sender: TObject);
+    procedure checkeasymine(once:boolean);
+    procedure Panel1DblClick(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure Panel1Click(Sender: TObject);
+    procedure mainbuttonMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure mainbuttonMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  time,s00minenum,s00num:integer;
+  nowi,nowj:integer;
+  ismine:array[-1..40,-1..40]of boolean;
+  status:array[-1..40,-1..40]of statu;
+  Mineform: TMineform;
+const
+  rBlockLength:Trect=(left:0;top:0;right:16;bottom:16);{no used}
+  xNum:integer=16;   {8,8,10;  16,16,40;   30,16,99}
+  yNum:integer=16;
+  MineNum:integer=40;
+
+
+implementation
+
+{$R *.DFM}
+function  TMineform.calcmines(i,j:integer):integer;
+var s:integer;
+begin
+  s:=0;
+  if (j>0)and(ismine[i,j-1]) then inc(s);
+  if (j<ynum-1)and(ismine[i,j+1]) then inc(s);
+  if (i>0) then begin
+     if (ismine[i-1,j]) then inc(s);
+     if (j>0)and(ismine[i-1,j-1]) then inc(s);
+     if (j<ynum-1)and(ismine[i-1,j+1]) then inc(s);
+     end;
+  if (i<xnum-1) then begin
+     if (ismine[i+1,j]) then inc(s);
+     if (j>0)and(ismine[i+1,j-1]) then inc(s);
+     if (j<ynum-1)and(ismine[i+1,j+1]) then inc(s);
+     end;
+  result:=s;
+end;
+function  TMineform.calcstatus(calcstatu:statu;i,j:integer):integer;
+var s:integer;
+begin
+  s:=0;
+  if (j>0)and(status[i,j-1]=calcstatu) then inc(s);
+  if (j<ynum-1)and(status[i,j+1]=calcstatu) then inc(s);
+  if (i>0) then begin
+     if (status[i-1,j]=calcstatu) then inc(s);
+     if (j>0)and(status[i-1,j-1]=calcstatu) then inc(s);
+     if (j<ynum-1)and(status[i-1,j+1]=calcstatu) then inc(s);
+     end;
+  if (i<xnum-1) then begin
+     if (status[i+1,j]=calcstatu) then inc(s);
+     if (j>0)and(status[i+1,j-1]=calcstatu) then inc(s);
+     if (j<ynum-1)and(status[i+1,j+1]=calcstatu) then inc(s);
+     end;
+  result:=s;
+end;
+procedure TMineform.draw(i,j:integer);{general procedure}
+var itmp: integer;
+begin
+ case status[i,j] of
+ s00:begin
+   minepic.canvas.copyrect
+    (rect(16*i,16*j,16*(i+1),16*(j+1)),image00.canvas,rBlockLength);
+  end;
+ smark:begin
+  minepic.canvas.copyrect
+   (rect(16*i,16*j,16*(i+1),16*(j+1)),imagemark.canvas,rBlockLength);
+  end;
+ sopen:begin
+  itmp:= calcmines(i,j);
+   minepic.canvas.copyrect
+     (rect(16*i,16*j,16*(i+1),16*(j+1)),
+      imageMm.canvas,rect(16*itmp,0,16*(itmp+1),16));
+  end;
+ end;
+end;
+procedure TMineform.fail;
+var i,j:integer;
+begin
+  timer1.enabled:=false;
+  minepic.onmousedown:=nil;
+  minepic.onmouseup:=nil;
+  mainbutton.picture.bitmap:=imagecry.picture.bitmap;
+  for i:=0 to xnum-1 do begin
+  for j:=0 to ynum-1 do begin
+    if (status[i,j]=smark)and(not ismine[i,j])then begin
+     minepic.canvas.copyrect
+       (rect(16*i,16*j,16*(i+1),16*(j+1)),imageerror.canvas,rBlockLength);
+       end;          {!!!!}
+    if (status[i,j]=s00)and(ismine[i,j])then begin
+     minepic.canvas.copyrect
+       (rect(16*i,16*j,16*(i+1),16*(j+1)),imageismine.canvas,rBlockLength);
+       end;          {!!!!}
+  end;
+  end;
+end;
+procedure TMineform.mark(i,j:integer);
+begin
+if (i<0)or(j<0)or(i>xnum-1)or(j>ynum-1)or(status[i,j]<>s00) then exit;
+status[i,j]:=smark;
+s00num:=s00num-1;   s00minenum:=s00minenum-1;
+draw(i,j)
+{minepic.canvas.copyrect
+   (rect(16*i,16*j,16*(i+1),16*(j+1)),imagemark.canvas,rBlockLength);}
+end;
+function TMineform.modematch(x,y:jiu):boolean;
+var i,j :integer;
+begin
+  for i:=0 to 2 do begin
+  for j:=0 to 2 do begin
+    if not(x[i,j]=y[i,j])and(y[i,j]=true)then begin
+     modematch:=false;exit;end;
+  end;
+  end;
+  modematch:=true;
+end;
+
+procedure TMineform.openmine(i,j:integer);{general}
+begin              {i,j not a mine }
+if (i<0)or(j<0)or(i>xnum-1)or(j>ynum-1)
+    or(status[i,j]<>s00)or(ismine[i,j]) then exit;
+status[i,j]:=sopen;
+s00num:=s00num-1;
+draw(i,j);
+if calcmines(i,j)=0 then begin
+    openmine(i-1,j-1);openmine(i-1,j);openmine(i-1,j+1);
+    openmine(i,  j-1);                openmine(i,  j+1);
+    openmine(i+1,j-1);openmine(i+1,j);openmine(i+1,j+1);
+    end;
+end;
+procedure TMineform.FormCreate(Sender: TObject);
+begin
+  randomize;
+  start;
+  mousedown1click(mousedown1);
+end;
+
+procedure TMineform.minepicMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var i,j:integer;
+begin
+   i:=x div 16;nowi:=i;
+   j:=y div 16;nowj:=j;
+  mainbutton.picture.bitmap:=image_o.picture.bitmap;
+  if (nowi>=xnum)or(nowj>=ynum)or(button<>mbleft) then exit;
+  if (status[i,j]=s00) then
+   minepic.canvas.copyrect
+      (rect(16*i,16*j,16*(i+1),16*(j+1)),imageMm.canvas,rBlockLength);
+end;
+
+procedure TMineform.minepicMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var i,j,ii,jj:integer;
+label dead;
+begin
+i:=x div 16;
+j:=y div 16;
+mainbutton.picture.bitmap:=imagelaugh.picture.bitmap;
+if mousedown1.checked then begin nowi:=i;nowj:=j;end;
+if (i>=xnum)or(j>=ynum) then exit;
+if ((nowj<>j)or(nowi<>i)) then  begin
+ if (status[nowi,nowj]=s00) then
+     minepic.canvas.copyrect
+       (rect(16*nowi,16*nowj,16*(nowi+1),16*(nowj+1)),image00.canvas,rBlockLength);
+ exit;    end;
+if (status[i,j]=sopen) then begin
+  for ii:=-1 to 1 do
+    for jj:=-1 to 1 do
+     if (status[i+ii,j+jj]=smark)and(not ismine[i+ii,j+jj]) then
+     begin
+     fail;
+     exit;
+     end;
+     {goto  dead;}
+  if (calcstatus(smark,i,j)=calcmines(i,j)) then begin
+    openmine(i-1,j-1);openmine(i-1,j);openmine(i-1,j+1);
+    openmine(i,  j-1);                openmine(i,  j+1);
+    openmine(i+1,j-1);openmine(i+1,j);openmine(i+1,j+1);
+  end;          {!!!!}
+  if (calcstatus(s00,i,j)+calcstatus(smark,i,j)=calcmines(i,j)) then begin
+    mark(i-1,j-1);mark(i-1,j);mark(i-1,j+1);
+    mark(i,  j-1);            mark(i,  j+1);
+    mark(i+1,j-1);mark(i+1,j);mark(i+1,j+1);
+  end;
+ exit;
+ end;
+if button=mbright then begin
+ if (status[i,j]=s00) then  begin
+   mark(i,j);
+ {   status[i,j]:=smark;
+   minepic.canvas.copyrect
+       (rect(16*i,16*j,16*(i+1),16*(j+1)),imagemark.canvas,rBlockLength);}
+    end
+ else   begin
+   status[i,j]:=s00;  s00minenum:=s00minenum+1;  s00num:=s00num+1;
+   minepic.canvas.copyrect
+       (rect(16*i,16*j,16*(i+1),16*(j+1)),image00.canvas,rBlockLength);
+    end;
+  exit;
+ end;
+if (status[i,j]<>s00) then  exit;
+if ismine[i,j] then  begin
+    if s00num=xnum*ynum then  begin  {first}
+      repeat
+      ii:=random(xnum);jj:=random(ynum);
+      until (not ismine[ii,jj]);
+      ismine[ii,jj]:=true;
+      ismine[i,j]:=false; openmine(i,j); exit;
+    end;
+    status[i,j]:=smark;
+    minepic.canvas.copyrect
+     (rect(16*i,16*j,16*(i+1),16*(j+1)),imagedead.canvas,rBlockLength);
+    timer1.enabled:=false;
+   fail;
+   exit;
+  end
+ else begin  openmine(i,j);
+  end;
+end;
+procedure TMineform.Timer1Timer(Sender: TObject);
+var i,j,ll:integer;
+begin
+  inc(time);
+  ll:=time div 100;
+  timelabel.canvas.copyrect
+     (rect(0,0,13,23),imageLed.canvas,rect(13*ll,0,13*(ll+1),23));
+  ll:=(time mod 100) div 10;
+  timelabel.canvas.copyrect
+     (rect(13,0,26,23),imageLed.canvas,rect(13*ll,0,13*(ll+1),23));
+  ll:=time mod 10;
+  timelabel.canvas.copyrect
+     (rect(26,0,39,23),imageLed.canvas,rect(13*ll,0,13*(ll+1),23));
+  ll:=s00minenum div 100;
+  minelabel.canvas.copyrect
+     (rect(0,0,13,23),imageLed.canvas,rect(13*ll,0,13*(ll+1),23));
+  ll:=(s00minenum mod 100) div 10;
+  minelabel.canvas.copyrect
+     (rect(13,0,26,23),imageLed.canvas,rect(13*ll,0,13*(ll+1),23));
+  ll:=s00minenum mod 10;
+  minelabel.canvas.copyrect
+     (rect(26,0,39,23),imageLed.canvas,rect(13*ll,0,13*(ll+1),23));
+
+  if s00minenum=s00num then begin
+    for i:=0 to xnum  do begin
+    for j:=0 to ynum  do begin
+      if  status[i,j]=s00 then mark(i,j);
+    end;
+    end;
+    success;
+  end;
+end;
+
+procedure TMineform.New1Click(Sender: TObject);
+begin
+  START;
+end;
+
+procedure TMineform.N10881Click(Sender: TObject);
+begin
+ minepic.picture:=nil;
+ xnum:=8;ynum:=8;minenum:=10;
+ minepic.width:=16*xnum+10;
+ minepic.height:=16*ynum+48;
+ start;
+end;
+
+procedure TMineform.N4016161Click(Sender: TObject);
+begin
+ minepic.picture:=nil;
+ xnum:=16;ynum:=16;minenum:=49;
+ minepic.width:=16*xnum+10;
+ minepic.height:=16*ynum+48;
+ start;
+end;
+
+procedure TMineform.N9930161Click(Sender: TObject);
+begin
+ minepic.picture:=nil;
+ xnum:=30;ynum:=16;minenum:=99;
+ minepic.width:=16*xnum+10;
+ minepic.height:=16*ynum+48;
+ start;
+end;
+
+procedure TMineform.Panel1Resize(Sender: TObject);
+begin
+  mainbutton.left:=(panel1.width-mainbutton.width) div 2;
+  timelabel.left:=panel1.width-timelabel.width-10;
+end;
+
+procedure TMineform.mousedown1Click(Sender: TObject);
+begin
+ mousedown1.checked:=not mousedown1.checked;
+ if mousedown1.checked then begin
+     minepic.onmousedown:=minepicmouseup;
+     minepic.onmouseup:=nil;
+  end
+ else begin
+     minepic.onmousedown:=minepicmousedown;
+     minepic.onmouseup:=minepicmouseup;
+  end;
+end;
+function TMineform.ai_0:boolean;
+var i,j:integer;
+begin
+  for i:=0 to xnum-1 do begin
+  for j:=0 to ynum-1 do begin
+     if (status[i,j]=smark)and(not ismine[i,j]) then  begin
+       minepic.canvas.copyrect
+        (rect(16*i,16*j,16*(i+1),16*(j+1)),imagedead.canvas,rBlockLength);
+       timer1.enabled:=false;
+       Fail;
+       ai_0:=false;
+       exit;
+     end;
+  end;{check if mark error}
+  end;
+   ai_0:=true;
+end;
+function TMineform.ai_1:boolean;
+var i,j:integer;unchanged:boolean;
+begin
+repeat
+unchanged:=true;
+  for i:=0 to xnum-1 do begin
+  for j:=0 to ynum-1 do begin{AI: open what can be counted}
+    if (status[i,j]=sopen)and(calcstatus(s00,i,j)>0) then begin
+       if (calcstatus(smark,i,j)=calcmines(i,j)) then begin
+         unchanged:=false;
+         openmine(i-1,j-1);openmine(i-1,j);openmine(i-1,j+1);
+         openmine(i,  j-1);                openmine(i,  j+1);
+         openmine(i+1,j-1);openmine(i+1,j);openmine(i+1,j+1);
+       end;          {!!!!}
+       if (calcstatus(s00,i,j)+calcstatus(smark,i,j)=calcmines(i,j)) then begin
+         unchanged:=false;
+         mark(i-1,j-1);mark(i-1,j);mark(i-1,j+1);
+         mark(i,  j-1);            mark(i,  j+1);
+         mark(i+1,j-1);mark(i+1,j);mark(i+1,j+1);
+         end;
+    end;
+  end;
+  end;
+until unchanged {or once};
+ai_1:=not unchanged;
+end;
+function TMineform.ai_2:boolean;
+var i,j,ii,jj:integer;find:boolean;
+jiugong:jiu;{array}
+direction:integer;
+completelyopen,completelymark:boolean;
+const
+model0:jiu=((true,true,true),(false,true,false),(false,true,false));
+model1:jiu=((true,false,false),(true,true,true),(true,false,false));
+model2:jiu=((false,true,false),(false,true,false),(true,true,true));
+model3:jiu=((false,false,true),(true,true,true),(false,false,true));
+begin
+  for i:=0 to xnum-1 do begin
+  for j:=0 to ynum-1 do begin
+   find:=false;
+   if not(status[i,j]=sopen)  then continue;{easy exclude}
+   if(calcmines(i,j)=calcstatus(smark,i,j)) then continue;{easy exclude}
+   for ii:=0 to 2  do begin{mode match mode exclude1}
+   for jj:=0 to 2 do begin
+       jiugong[ii,jj]:=not(status[i+ii-1,j+jj-1]=s00);
+   end;      {row first line second}
+   end;
+   find:=true;
+   if(modematch(jiugong,model0))then begin
+      direction:=0;
+      ii:=i+1;jj:=j;{|-}
+    end
+   else if(modematch(jiugong,model1))then begin
+      direction:=1;
+      ii:=i;jj:=j+1;{T}
+      end
+   else if(modematch(jiugong,model2))then begin
+      direction:=2;
+      ii:=i-1;jj:=j;{-|}
+      end
+   else if(modematch(jiugong,model3))then begin
+      direction:=3;
+      ii:=i;jj:=j-1;{+}
+    end
+   else find:=false;{-i--}
+                     {j---}  {find mode=direction x=(i,j);y=(ii,jj)}
+   if not find or  not(status[ii,jj]=sopen) then continue;{end of mode exclude1}
+  { open mark match}
+   find:=false;
+   if (calcstatus(s00,i,j)>=calcstatus(s00,ii,jj))then continue;
+   {(3)completely equal}
+   completelyopen:=false;
+   completelymark:=false;
+   if(((calcmines(ii,jj)-calcstatus(smark,ii,jj)) {mark}
+     -(calcmines(i,j)-calcstatus(smark,i,j)))
+     =(calcstatus(s00,ii,jj)-calcstatus(s00,i,j)))
+    then begin
+     completelymark:=true;find:=true;
+    end
+   else if((calcmines(ii,jj)-calcstatus(smark,ii,jj)) {open}
+              =(calcmines(i,j)-calcstatus(smark,i,j)))
+            then begin
+               completelyopen:=true;find:=true;
+            end
+   else continue;{can not be applied}
+   if (direction=0) or (direction=2)then begin{(4)unmarknum(x)=mines(x)-mark(x)
+   {if1              unopennum(x)=s00(x)-mark(x)-open(x)}
+    if(direction=0)then inc(ii) else dec(ii);
+    if(completelyopen)then begin
+{     for j:=jj-1 to jj+1 do begin
+      if(status[ii,j]=s00)then begin
+       find:=true;
+       openmine(ii,j);
+      end;
+     end;}
+    end;
+    if(completelymark)then begin
+{     for j:=jj-1 to jj+1 do begin
+      if(status[ii,j]=s00)then begin
+       find:=true;
+       mark(ii,j);
+      end;
+     end;}
+    end;
+   end
+   else begin{if1}
+    if(direction=1)then inc(jj) else dec(jj);
+    if(completelyopen)then begin
+{     for i:=ii-1 to ii+1 do begin
+      if(status[i,jj]=s00)then begin
+       find:=true;
+       status[i,jj]:=sopen;draw(i,jj);
+      end;
+     end;}
+    end;
+    if(completelymark)then begin
+{     for i:=ii-1 to ii+1 do begin
+      if(status[i,jj]=s00)then begin
+       find:=true;
+       status[i,jj]:=smark;draw(i,jj);
+      end;
+     end;  }
+    end;
+   end;{if1}
+   if find then break;
+  end;{for j}
+   if find then break;
+  end;{for i}
+  ai_2:=find;
+end;
+function TMineform.ai_3:boolean;
+var i,j:integer;
+begin
+{}
+end;
+procedure TMineform.checkeasymine(once:boolean);{AI}{once : do just once}
+var i,j:integer; unchanged:boolean;
+begin
+    if(not ai_0) then exit;   {check if mark error}
+    for i:=0 to (xnum+ynum) do begin{avoid deadlock}
+     if not ai_1 and not ai_2 then break;
+    end;
+end;
+procedure TMineform.Panel1DblClick(Sender: TObject);
+begin
+  checkeasymine(true);
+end;
+procedure TMineform.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if key=vk_escape then
+  checkeasymine(false);
+  if key=vk_f12 then ai_2;
+end;
+
+procedure TMineform.Panel1Click(Sender: TObject);
+var ij,i,j,open,m,lim:integer;
+begin
+  if s00num<1 then exit;
+  for ij:=0 to 10 do begin
+    i:=random(xnum);    j:=random(ynum);
+    if calcmines(i,j)=0 then begin openmine(i,j);end;
+  end;
+  open:=random(s00num);
+  m:=-1;  ij:=-1;  lim:=xnum*ynum;
+  while (m<open) do
+  begin
+      ij:=ij+1;
+      if ij>lim then exit;
+      if status[ij mod xnum,ij div xnum]=s00 then begin
+        m:=m+1;
+       end;
+  end;
+  openmine(ij mod xnum,ij div xnum);
+end;
+
+procedure TMineform.mainbuttonMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+mainbutton.picture.bitmap:=image00laugh.picture.bitmap;
+end;
+
+procedure TMineform.mainbuttonMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+mainbutton.picture.bitmap:=imagelaugh.picture.bitmap;
+  start;
+end;
+procedure TMineform.start;
+var i,j,n:integer;
+begin
+ mainbutton.picture.bitmap:=imagelaugh.picture.bitmap;
+ time:=0;
+ s00minenum:=minenum; s00num:=xnum*ynum;{if s00minenum=s00num mark all mines}
+ timer1.enabled:=true;
+ minepic.onmousedown:=minepicmouseup;
+if mousedown1.checked then minepic.onmouseup:=nil{select mousedown mode}
+   else  begin
+    minepic.onmousedown:=minepicmousedown;
+    minepic.onmouseup:=minepicmouseup;
+   end;
+ self.width:=16*xnum+4;
+ self.height:=16*ynum+44+panel1.height;
+ for i:=-1 to xnum do begin
+  status[i,-1]:=sopen;ismine[i,-1]:=false;
+  status[i,ynum]:=sopen;ismine[i,ynum]:=false;
+ end;
+ for j:=-1 to xnum do begin
+  status[-1,j]:=sopen;ismine[-1,j]:=false;
+  status[xnum,j]:=sopen;ismine[xnum,j]:=false;
+ end;
+ for i:=0 to xnum-1 do begin{draw block}
+ for j:=0 to ynum-1 do begin
+   status[i,j]:=s00;
+   draw(i,j);
+   ismine[i,j]:=false;
+ end;
+ end;
+ n:=0;
+ while (n<minenum) do  begin     {randomize mines}
+  i:=random(xnum);  j:=random(ynum);
+  if not ismine[i,j] then begin ismine[i,j]:=true;inc(n); end;
+  end;
+end;
+procedure TMineform.success;
+begin
+  timer1.enabled:=false;
+  mainbutton.picture.bitmap:=imagesuccess.picture.bitmap;
+  showmessage('you win! time:'+inttostr(time));
+  start;
+end;
+
+end.
