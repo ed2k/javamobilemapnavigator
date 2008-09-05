@@ -1,0 +1,111 @@
+<html>
+<head>
+<style>
+.bigcell {
+  background-color:#cccccc;
+  border:4px solid #999999;
+  text-align:center;
+}
+.cell {
+  width:36px;
+  height:40px;
+  font-family:Verdana, Arial;
+  font-size:10pt;
+  font-weight:bold;
+  background-color:#606060;
+  color:#ffffff;
+  border-top:3px solid #cccccc;
+  border-left:3px solid #cccccc;
+  border-right:3px solid #000000;
+  border-bottom:3px solid #000000;
+  text-align:center;
+}
+.hole {
+  width:36px;
+  height:40px;
+  background-color:#999999;
+  text-align:center;
+}
+body,h1,h2,h3,.msg,capt1,capt2,td {font-family:Verdana,Comic Sans MS,Arial;}
+body {margin:0px;}
+h1 {font-size:28pt; font-weight:bold; margin-bottom:0px;}
+h2,.h2 {font-size:22pt; margin:0px; font-weight:bold; padding:0px;}
+h3 {font-size:8pt; margin:0px; font-weight:bold;}
+.msg {font-size:8pt; font-weight:bold;}
+.tab {cursor:hand;}
+.capt1 {font-size:10pt; font-weight:bold;}
+.capt2 {font-size:9pt; font-weight:bold;}
+.capt3 {font-size:14pt; font-weight:bold; color:yellow;}
+.capt4 {font-size:10pt; font-weight:bold; color:yellow;}
+.but {font-size:8pt; font-weight:bold; height:24px; background-color:#606060; background-image:url(images/butbase.gif);
+      border:0px solid #cccccc; border-left:none; border-right:none; color:white;}
+.bnote {font-size:8pt; font-weight:normal;color:white;}
+a.notelnk,a.notelnk:visited,a.notelnk:active {font-size:8pt; font-weight:normal; color:#66ffcc;}
+.bnotehead {font-size:10pt; font-weight:bold;color:#66ffcc;}
+.email {font-size:8pt; font-weight:bold; color:white;}
+.fra {border:2px solid #999999; background-color:#606060;}
+.clsThisGame, .clsBar {font-size:8pt; font-weight:bold; color:#cccccc;}
+.clsBar {margin:0px; font-size:8pt; font-weight:bold; color:#ffffff;}
+.clsOtherGame {margin:0px; font-size:8pt; font-weight:bold; color:#ffffff; text-decoration:none;}
+.help {font-size:8pt; margin:0px; font-weight:bold;}
+.menubar {padding:0px; margin:0px; brder-top:1px solid white; brder-bottom:1px solid white; background-color:#606060;
+          background-image:url(images/menu.gif);}
+</style>
+<script src=arrange.js>
+</script>
+</head>
+<body  onload="toggleHelp();loadBoard(4);" >
+<center>
+
+<table width=620 height=47 background="images/framebase.gif" border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=3 height=16></td></tr>
+<tr>
+<td width=8>&nbsp;</td><td class=h2 align=center width=98%>Arrange</td>
+<td align=right valign=bottom><input type=button id=butHelp value="Hide Help" class="but" onclick="toggleHelp()"></td>
+<td width=8>&nbsp;</td>
+</tr>
+</table>
+
+<table id=help width=620  border=0 cellpadding=0 cellspacing=0>
+<tr><td height="10"></td></tr>
+<tr><td class=help>
+<ol>
+<li>Choose a Level (3 to 10).</li>
+<li>The game board has blocks with numbers in it. Also there is a single "hole" that can be used for moving the blocks.</li>
+<li>The objective of the game is to order the numbers using the "hole" for temporary movement.</li>
+<li>Press the "Start Game" button. The timer would be started.</li>
+<li>Move blocks in a row by clicking on them. A block can be moved only if it is in the same row or column as the "hole".</li>
+<li>You can move multiple blocks (in the same row or column as the "hole") by clicking the farthest block that you need to be moved.</li>
+</ol>
+</td></tr>
+</table>
+<table width=620 border=0 cellpadding=0 cellspacing=0>
+<tr><td height=29><td valign=middle align=center><h3>Order all the numbers in the shortest time possible with a minimum number of moves...
+</h3></td></tr>
+</table>
+<p>
+<div id=test></div>
+<table cellpadding=4>
+<tr><td align=center>
+<b>Choose Level: </b>
+<select id=level onchange="loadBoard(parseInt(level.value))">
+<option value='3'>3</option>
+<option value='4' selected>4</option>
+<script>
+for (var i=5;i<=10;i++)
+{
+  document.write("<option value='" + i + "'>" + i + "</option>");
+}
+</script>
+</select>
+</td></tr>
+<tr><td align=center>
+<input type=button class=but value="Start Game" onclick="startGame();">
+<tr><td align=center id=fldStatus class=capt2>
+</td></tr>
+</table>
+<div id=board></div>
+</CENTER>
+<br>
+</body>
+</html>

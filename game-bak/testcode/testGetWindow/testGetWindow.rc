@@ -1,0 +1,57 @@
+#include <winuser.h>
+
+#define IDD_MAINDLG                     101
+#define IDC_CLASSNAME                   1000
+#define IDC_HANDLE                      1001
+#define IDC_WNDPROC                     1002
+#define IDC_HOOK                        1004
+#define IDC_EXIT                        1005
+#define IDC_MYTRACE                       1006
+#define IDC_OWNER         1011
+#define IDC_PARENT         1012
+#define IDC_CHILD         1013
+#define IDC_FIRST         1014
+#define IDC_PREV         1015
+#define IDC_NEXT         1016
+#define IDC_LAST         1017
+  
+#define IDC_STATIC                      -1
+/*
+#define DS_MODALFRAME                   0x80
+
+#define WS_POPUP                        0x80000000
+#define WS_CAPTION                      0xC00000
+#define WS_SYSMENU                      0x80000
+#define ES_AUTOHSCROLL                  0x80
+#define ES_AUTOVSCROLL                  0x40
+#define ES_READONLY                     0x800
+#define ES_MULTILINE                     0x4
+*/
+IDD_MAINDLG DIALOG DISCARDABLE  0, 0, 229, 220
+STYLE DS_MODALFRAME |  WS_POPUP | WS_CAPTION | WS_SYSMENU |WS_MINIMIZEBOX
+CAPTION "Mouse Hook Demo"
+FONT 8, "MS Sans Serif"
+
+BEGIN
+    GROUPBOX        "Window Information",IDC_STATIC,7,7,214,67
+    LTEXT           "Class name:",IDC_STATIC,21,22,39,8
+    EDITTEXT        IDC_CLASSNAME,69,20,139,12,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Handle:",IDC_STATIC,33,37,26,8
+    EDITTEXT        IDC_HANDLE,69,36,77,12,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Window Proc:",IDC_STATIC,13,52,46,8
+    EDITTEXT        IDC_WNDPROC,69,51,77,12,ES_AUTOHSCROLL | ES_READONLY
+    DEFPUSHBUTTON   "&Hook",IDC_HOOK,159,35,50,14
+    PUSHBUTTON      "E&xit",IDC_EXIT,159,50,50,14
+
+    EDITTEXT        IDC_PARENT,55,75,40,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_CHILD,105,75,40,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_OWNER,5,75,40,12,ES_AUTOHSCROLL | ES_READONLY
+
+    EDITTEXT        IDC_FIRST,5,90,40,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_PREV,60,90,40,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_NEXT,110,90,40,12,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_LAST,150,90,40,12,ES_AUTOHSCROLL | ES_READONLY
+
+    EDITTEXT        IDC_MYTRACE,12,102,200,112,ES_AUTOHSCROLL |ES_AUTOVSCROLL |ES_READONLY |ES_MULTILINE 
+END
+
