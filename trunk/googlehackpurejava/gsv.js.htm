@@ -385,7 +385,8 @@ function setTileImage(tile, nullOverride)
     var high = tile.r < 0;
     var right = tile.c >= Math.pow(2, tile.imageViewer.dimensions.zoomLevel);
     var low = tile.r >= Math.pow(2, tile.imageViewer.dimensions.zoomLevel);
-    var outside = high || left || low || right;
+    //var outside = high || left || low || right;
+    var outside = high || left
 
          if(nullOverride)     { src = 'null/none.png';          }
 
@@ -395,10 +396,10 @@ function setTileImage(tile, nullOverride)
     else if(high && left)     { src = 'null/top-left.png';      }
     else if(low  && left)     { src = 'null/bottom-left.png';   }
     else if(high && right)    { src = 'null/top-right.png';     }
-    else if(low  && right)    { src = 'null/bottom-right.png';  }
+    //else if(low  && right)    { src = 'null/bottom-right.png';  }
     else if(high)             { src = 'null/top.png';           }
-    else if(right)            { src = 'null/right.png';         }
-    else if(low)              { src = 'null/bottom.png';        }
+    //else if(right)            { src = 'null/right.png';         }
+    //else if(low)              { src = 'null/bottom.png';        }
     else if(left)             { src = 'null/left.png';          }
 
     tile.img.src = src;
