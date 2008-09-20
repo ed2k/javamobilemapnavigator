@@ -50,6 +50,8 @@ class MyHandler(BaseHTTPRequestHandler):
             s = 2+scale
             
             f = './%sv=w2.83&hl=en&x=%d&y=%d&z=%d&s=' % (root,x,y,s)
+            if s == 15:
+               f = './%sv=w2.83&hl=en&x=%d&s=&y=%d&z=%d&s=' % (root,x,y,s)
             print f
 	    self.wfile.write(get_file(f))
 	    return
