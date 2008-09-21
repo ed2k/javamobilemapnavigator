@@ -40,11 +40,15 @@ public class GoogleEarthHandler implements EarthHandler {
     
     LinkedHashMap images = new LinkedHashMap();
     if(dataSet==DataSet.ROAD){
-      images.put("GE_"+dataSet+"_z"+getGoogleZoom()+"_x"+xPos/256+"_y"+yPos/256+".png",new URL("http://mt.google.com/mt?n=404&v=w2.39&x="+xPos/256+"&y="+yPos/256+"&zoom="+getGoogleZoom()));
-      eb.setImages(images);
+			// Waldschrat: changed URL according to a hint in the Trekbuddy forum
+      //images.put("GE_"+dataSet+"_z"+getGoogleZoom()+"_x"+xPos/256+"_y"+yPos/256+".png",new URL("http://mt.google.com/mt?n=404&v=w2.39&x="+xPos/256+"&y="+yPos/256+"&zoom="+getGoogleZoom()));
+      images.put("GE_"+dataSet+"_z"+getGoogleZoom()+"_x"+xPos/256+"_y"+yPos/256+".png",new URL("http://mt.google.com/mt?n=404&v=w2.70&x="+xPos/256+"&y="+yPos/256+"&zoom="+getGoogleZoom()));
+eb.setImages(images);
     }else if(dataSet==DataSet.AERIAL){
       String satRef = getSatelliteRef(minY/256,minX/256,getGoogleZoom());
-      images.put("GE_"+dataSet+"_z"+getGoogleZoom()+"_t"+satRef+".jpeg",new URL("http://kh.google.com/kh?n=404&v=14&t="+satRef));
+			// Waldschrat: chanded URL accourding to a hint in the Trekbuddy forum
+      //images.put("GE_"+dataSet+"_z"+getGoogleZoom()+"_t"+satRef+".jpeg",new URL("http://kh.google.com/kh?n=404&v=14&t="+satRef));
+      images.put("GE_"+dataSet+"_z"+getGoogleZoom()+"_t"+satRef+".jpeg",new URL("http://kh.google.com/kh?v=99&n=404&t="+satRef));
       eb.setImages(images);
     }else{
       String satRef = getSatelliteRef(minY/256,minX/256,getGoogleZoom());
