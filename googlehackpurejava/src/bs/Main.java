@@ -210,7 +210,7 @@ public class Main {
     
     int       numGroupedImgs = 20;
     int       colorType      = BufferedImage.TYPE_BYTE_INDEXED; //BufferedImage.TYPE_BYTE_INDEXED or BufferedImage.TYPE_INT_RGB    
-    DataSet   dataSet        = DataSet.AERIAL;
+    DataSet   dataSet        = DataSet.ROAD;//AERIAL;
     Zoom      zoom           = Zoom.ZOOM_17;
     MapSource mapSource      = MapSource.GOOGLEEARTH;
     String    mapName        = "sf_goldengate";

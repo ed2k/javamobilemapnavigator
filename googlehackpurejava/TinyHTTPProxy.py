@@ -97,6 +97,9 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             self.connection.close()
 
     def _read_write(self, soc, max_idling=20,cache=None):
+        ''' todo: need more checking to make sure not garbage downloaded
+            more checking to avoid download duplicate
+        '''
         iw = [self.connection, soc]
         ow = []
         header_pos = -1; # data pos for end of http header

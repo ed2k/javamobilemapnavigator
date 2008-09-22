@@ -22,7 +22,7 @@ def get_file(path):
     f = glob.glob(path+'*')
     if len(f) == 0: return ''
     f = f[0]
-    print f
+    #print f
     return open(f,mode).read()
 
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
@@ -45,14 +45,14 @@ class MyHandler(BaseHTTPRequestHandler):
             self.send_header("Conten-type","image/png")            
             self.end_headers()
             scale,x,y = [int(t) for t in (self.path[7+5:-4].split('-'))]
-            print scale,x,y
+            #print scale,x,y
             root = 'mt/'
             s = 2+scale
             
             f = './%sv=w2.83&hl=en&x=%d&y=%d&z=%d&s=' % (root,x,y,s)
             if s == 15:
                f = './%sv=w2.83&hl=en&x=%d&s=&y=%d&z=%d&s=' % (root,x,y,s)
-            print f
+            #print f
 	    self.wfile.write(get_file(f))
 	    return
         else:
