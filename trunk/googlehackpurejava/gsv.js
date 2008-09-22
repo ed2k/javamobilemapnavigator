@@ -272,7 +272,11 @@ function setTileImage(tile, nullOverride)
       src += '/'+n+'/'+nn+'/set/'+nn+'_'+tile.c*256+'_'+tile.r*256+'.png';
     } else {
       // for gmaps not finished yet
-      src = '/v=2.83'+'&x='+tile.c+'&y='+tile.r+'&z='+dim.zoomLevel+'&s=';
+      if (dim.zoomLevel == 15) {
+       src += '/v=w2.83&hl=en'+'&x='+tile.c+'&s=&y='+tile.r+'&z='+dim.zoomLevel+'&s=';
+      } else {
+       src += '/v=w2.83&hl=en'+'&x='+tile.c+'&y='+tile.r+'&z='+dim.zoomLevel+'&s=';
+      }      
     }
     // has the image been scrolled too far in any particular direction?
     var left = tile.c < 0;
