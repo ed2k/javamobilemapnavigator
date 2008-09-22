@@ -287,6 +287,15 @@
 		if ( zoomlevel < 8 ) map.setZoom(8);		
 	}
 
+	function checkOverview() {
+               ov_map = overview.getOverviewMap();
+               if (ov_map) {      
+               		ov_map.addControl( new GSmallZoomControl() );
+			overview.hide();
+                } else {
+                        setTimeout("checkOverview()",100);
+                }
+        }
 	function load() {
 		if (GBrowserIsCompatible()) {
 			var screen_height = (window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight);
@@ -309,12 +318,14 @@
 			zoomlevel = map.getZoom();
 			map.setCenter(new GLatLng(latcenter, longcenter), zoomlevel);
 			
-			overview = new GOverviewMapControl(new GSize(264,(screen_height/2)-50));
+
+			overview = new GOverviewMapControl(new GSize(264,(screen_height/2)-50));                      
 			map.addControl(overview, new GControlPosition(G_ANCHOR_BOTTOM_LEFT, new GSize(-270, 0)));
-			ov_map = overview.getOverviewMap();
-			ov_map.addControl( new GSmallZoomControl() );
-			overview.hide();
+                        // per http://econym.googlepages.com/modularized.htm
+                        // temp hack to make it work
+                        setTimeout("checkOverview()",1000);
 			
+
 			updateBounds();
 			GEvent.addListener(map, "moveend", function() {
 				updateBounds();
@@ -767,7 +778,6 @@ To save, copy the text below, paste it into a text editor, and save from there i
 <p style="text-align: right;">
 <font face="Arial" size="2">Switch format (crippled Ozi or MMPXY/LL)</font>
 <button type='button' onclick='javascript:generate_mapfile(1)' >Switch</button>
-</font>
 <button type='button' onclick='javascript:close_popup("mapcalibration-box")' >Close</button>
 </p>
 </div>
