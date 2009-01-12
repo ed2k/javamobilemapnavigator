@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.0" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="2"/>
+  </SyntheticProperties>
+  <AuxValues>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,44,0,0,1,-111"/>
+  </AuxValues>
+
+  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+  <SubComponents>
+    <Container class="javax.swing.JTabbedPane" name="jTabbedPane">
+      <Events>
+        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jTabbedPaneStateChanged"/>
+      </Events>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="Center"/>
+        </Constraint>
+      </Constraints>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
+      <SubComponents>
+        <Container class="javax.swing.JPanel" name="jPanelGeneral">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="General" toolTip="General indexing settings">
+                <Property name="tabTitle" type="java.lang.String" value="General"/>
+                <Property name="tabToolTip" type="java.lang.String" value="General indexing settings"/>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+          <SubComponents>
+            <Container class="javax.swing.JPanel" name="jPanelGeneralSettings">
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="Center"/>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
+                <Property name="columns" type="int" value="2"/>
+                <Property name="rows" type="int" value="0"/>
+              </Layout>
+              <SubComponents>
+                <Component class="javax.swing.JLabel" name="jLabelIndexerType">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Indexer-Type"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Choose Lucene indexer if unsure, sql server indexing uses less memory especially for large indexes"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JList" name="jListIndexerType">
+                  <Properties>
+                    <Property name="selectionMode" type="int" value="0"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabelIndexName">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Index-Name"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Name and, for Lucene indexes, path of the index"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="jTextFieldIndexName">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="JDesktopSearch"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabelFileTypesFull">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="File-Types for full document indexing"/>
+                    <Property name="toolTipText" type="java.lang.String" value="comma-separated list of file extensions where the document contents are parsed and included in the index"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="jTextFieldFileTypesFull">
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabelFileTypesProp">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="File-Types for properties indexing"/>
+                    <Property name="toolTipText" type="java.lang.String" value="comma-separated list of file extensions where only the file name is included in the index"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="jTextFieldFileTypesProp">
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabelDoIndexHidden">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Index hidden files and folders"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Normally hidden files and folders are not included in the index. The this checkbox to include such files and have them appear as search results."/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="jCheckBoxDoIndexHidden">
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabelExclusion">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="File patterns to exclude"/>
+                    <Property name="toolTipText" type="java.lang.String" value="comma separated list of file-patterns to exclude from search e.g. D:\*,E:\* will exclude the drives D and E on a Windows system"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="jTextFieldExlusions">
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JPanel" name="jPanelGeneralButtons">
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="South"/>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JButton" name="jButtonOK1">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="OK"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonOKActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JButton" name="jButtonCancel1">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Cancel"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonCancelActionPerformed"/>
+                  </Events>
+                </Component>
+              </SubComponents>
+            </Container>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="jPanelSQLServerSettings">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="SQL Server Settings" toolTip="Edit SQL Server settings if index is hosted on a SQL Server database">
+                <Property name="tabTitle" type="java.lang.String" value="SQL Server Settings"/>
+                <Property name="tabToolTip" type="java.lang.String" value="Edit SQL Server settings if index is hosted on a SQL Server database"/>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+          <SubComponents>
+            <Container class="javax.swing.JPanel" name="jPanelSQLServer">
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="Center"/>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
+                <Property name="columns" type="int" value="2"/>
+                <Property name="rows" type="int" value="0"/>
+              </Layout>
+              <SubComponents>
+                <Component class="javax.swing.JLabel" name="jLabelSQLVersion">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Version"/>
+                    <Property name="toolTipText" type="java.lang.String" value="SQL Server version, 7.0 is for SQL Server 7.0, 8.0 is for SQL Server 2000 and higher as well as for MSDE 2000 and higher"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JList" name="jListSQLVersion">
+                  <Properties>
+                    <Property name="selectionMode" type="int" value="0"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabelSQLName">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Name"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Name of the computer where the SQL server is installed, set to &quot;localhost&quot; if you have the SQL server on your local machine"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="jTextFieldSQLName">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="localhost"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabelSQLPort">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Port Number"/>
+                    <Property name="toolTipText" type="java.lang.String" value="SQL server port to connect to, set to &quot;default&quot; if you use the default port or are unsure"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="jTextFieldSQLPort">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="default"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabelSQLUser">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="User"/>
+                    <Property name="toolTipText" type="java.lang.String" value="SQL server user to use for the connection"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="jTextFieldSQLUser">
+                </Component>
+                <Component class="javax.swing.JLabel" name="jLabelSQLPassword">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Password"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Password to use for the connection to the server"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JPasswordField" name="jPasswordFieldSQLPassword">
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JPanel" name="jPanelSQLServerButtons">
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="South"/>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JButton" name="jButtonOK3">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="OK"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonOKActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JButton" name="jButtonCancel3">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Cancel"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonCancelActionPerformed"/>
+                  </Events>
+                </Component>
+              </SubComponents>
+            </Container>
+          </SubComponents>
+        </Container>
+      </SubComponents>
+    </Container>
+  </SubComponents>
+</Form>
