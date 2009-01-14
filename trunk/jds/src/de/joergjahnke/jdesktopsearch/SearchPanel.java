@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
@@ -470,9 +472,8 @@ public class SearchPanel extends javax.swing.JPanel {
                 jButtonFindActionPerformed(evt);
             }
         });
-
         jPanelSearchFor.add(jButtonFind);
-
+        
         jTabbedPane.addTab("Search Text", null, jPanelSearchFor, "Specify search terms and how to combine them");
 
         jPanelSearchInPath.setToolTipText("Restrict the search path");
