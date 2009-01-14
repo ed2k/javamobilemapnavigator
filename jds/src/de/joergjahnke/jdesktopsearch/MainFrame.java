@@ -20,6 +20,8 @@ import java.awt.TrayIcon;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -393,8 +395,19 @@ public class MainFrame extends JFrame {
         jMenuIndex.add(jMenuItemIndexProperties);
 
         jMenuBar.add(jMenuIndex);
-
+       
         jMenuHelp.setText("Help");
+        javax.swing.JMenuItem b = new javax.swing.JMenuItem();
+        b.setText("Stop Indexing");
+        b.addActionListener(new java.awt.event.ActionListener(){
+        	public void actionPerformed(java.awt.event.ActionEvent evt){
+        		if( indexManager.exists() ) {
+    	            indexManager.stopIndexing();
+    	        }
+        	}
+        });
+        jMenuHelp.add(b);
+        
         jMenuItemAbout.setText("About");
         jMenuItemAbout.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

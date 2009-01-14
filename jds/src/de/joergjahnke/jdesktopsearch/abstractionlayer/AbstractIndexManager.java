@@ -267,7 +267,6 @@ public abstract class AbstractIndexManager extends Observable {
         setChanged();
         notifyObservers( new IndexStatusMessage( IndexStatusMessage.EVENT_LONG_OPERATION_STARTED ) );
         
-        this.isIndexing = true;
         // iterate over all root directories
         for( String rootDir : getRootDirectories() ) {
             // update index
@@ -292,7 +291,6 @@ public abstract class AbstractIndexManager extends Observable {
         // add new root directory
         addRootDirectory( directory.getAbsolutePath() );
          // update index
-        this.isIndexing = true;
         update( directory );
         
         // notify observers about the end of the indexing process
@@ -401,15 +399,13 @@ public abstract class AbstractIndexManager extends Observable {
             // process these files and write them to the index
             this.writer = getIndexWriter( false );
 
-            //this.isIndexing = true;
+            this.isIndexing = true;
 
             // start some threads which extract searchable data from the indexable files
             final Runnable indexer = new Runnable() {
                 public void run() {
-                	System.out.println("i: "+fileQueue.size());
                     while( isIndexing || !fileQueue.isEmpty()) {
                         final String path = fileQueue.poll();
-                        System.out.println("i: "+fileQueue.size()+path);
                         if( null == path ) {
                             try { Thread.sleep( 100 ); 
                             } catch( InterruptedException e ) {}
@@ -439,16 +435,13 @@ public abstract class AbstractIndexManager extends Observable {
 
             indexersThread.setPriority( Thread.MIN_PRIORITY );
             indexersThread.start();
-            System.out.println("before doindex");
             // collect all indexable files
             doIndexing( writer, directory );
             // after file list push into fileQue then do real file parsing, so that queue is setup right
-            System.out.println("after doindex");
             this.isIndexing = false;
             // TODO, need to find a way to kill hanging thread (ex. when PDF is too big)
             // wait for indexers to finish
             indexersThread.join();
-            System.out.println("after join");
             this.writer.close();
             this.writer = null;
         } catch( Throwable t ) {
@@ -571,7 +564,6 @@ public abstract class AbstractIndexManager extends Observable {
                         } else {
                             // otherwise only record the document properties
                             final Document doc = createPropertiesDocument( file );
-                            System.out.println(+fileQueue.size()+path);
                             writer.addDocument( doc );
                             addDocument( path, file.lastModified() );
                         }
@@ -631,7 +623,9 @@ public abstract class AbstractIndexManager extends Observable {
     private Document createDocument( final File file ) {
         // create document that already contains the file properties
         Document doc = createPropertiesDocument( file );
-        
+        // put a limit on the file we indexed to avoid out of memory
+        // TODO, make the limit configurable
+        if (file.length() > 5000000) return doc;
         final String extension = FileUtils.getExtension( file.getPath() ).toLowerCase();
 
         try {
@@ -675,7 +669,8 @@ public abstract class AbstractIndexManager extends Observable {
             }
         } catch( Exception e ) {
             // data could not be extracted
-            System.err.println( "Could not extract data from document '" + file + "'! The error message was: " + e.getMessage() );
+            System.err.println( "Could not extract data from document '" + file + "'! Error: " + e.getMessage() );
+            doc.add(new Field("keywords", "parseError "+e.getMessage(), Field.Store.YES, Field.Index.ANALYZED));
             if( DEBUG ) e.printStackTrace();
         }     
 
