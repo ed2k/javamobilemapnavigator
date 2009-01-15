@@ -528,8 +528,8 @@ public abstract class AbstractIndexManager extends Observable {
                             // TODO: ideally removing deleted files should be started again
                         }
                     }
-                    if (filesAccessed >(prev+100)){
-                    System.out.println(usedMemory()+" "+filesAccessed+" " + path);
+                    if (filesAccessed >(prev+500)){
+                    System.out.println((usedMemory()/1000000)+" "+filesAccessed+" " + path);
                     prev = filesAccessed;
                     }
                     // collect all files and sub-directories
@@ -628,6 +628,7 @@ public abstract class AbstractIndexManager extends Observable {
         Document doc = createPropertiesDocument( file );
         // put a limit on the file we indexed to avoid out of memory
         // TODO, make the limit configurable
+        if (true) return doc;
         if (file.length() > 5000000) return doc;
         final String extension = FileUtils.getExtension( file.getPath() ).toLowerCase();
 
