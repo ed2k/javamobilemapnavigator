@@ -155,7 +155,7 @@ public abstract class AbstractIndexManager extends Observable {
         // get file exclusion list
         this.exclusions = null == properties.getProperty( "excluded_files" ) ? new String[ 0 ] : properties.getProperty( "excluded_files" ).split( "\\," );
         
-        // installa shutdown hook which stops any running indexing operations
+        // install a shutdown hook which stops any running indexing operations
         Runtime.getRuntime().addShutdownHook(
             new Thread() {
                 public void run() {
@@ -411,7 +411,6 @@ public abstract class AbstractIndexManager extends Observable {
                             } catch( InterruptedException e ) {}
                         } else {
                         	//TODO notify a file is being parsed. find out why cannot user notifyObservers 
-                            System.out.println(path);
                         	final File file = new File( path );
 
                             try {
@@ -440,10 +439,9 @@ public abstract class AbstractIndexManager extends Observable {
             indexersThread.setPriority( Thread.MIN_PRIORITY );
             indexersThread.start();
             // collect all indexable files
-            dirDepth = 0; filesAccessed = 0;
+            prev = 0; filesAccessed = 0;
             doIndexing( writer, directory );
-            System.out.println("after doindex");
-            // after file list push into fileQue then do real file parsing, so that queue is setup right
+             // after file list push into fileQue then do real file parsing, so that queue is setup right
             this.isIndexing = false;
             // TODO, need to find a way to kill hanging thread (ex. when PDF is too big)
             // wait for indexers to finish
@@ -486,7 +484,6 @@ public abstract class AbstractIndexManager extends Observable {
      * @param   file    file or directory to index. Subdirectories are also indexed
      */
     int prev = 0;
-    int dirDepth = 0;
     int filesAccessed = 0;
     private void doIndexing( final AbstractIndexWriter writer, final File file ) throws IOException {
         if( !this.isIndexing ) return;
@@ -531,16 +528,14 @@ public abstract class AbstractIndexManager extends Observable {
                             // TODO: ideally removing deleted files should be started again
                         }
                     }
-                    dirDepth ++;
                     if (filesAccessed >(prev+100)){
-                    System.out.println(usedMemory()+" "+filesAccessed+" depth "+dirDepth + " " + path);
+                    System.out.println(usedMemory()+" "+filesAccessed+" " + path);
                     prev = filesAccessed;
                     }
                     // collect all files and sub-directories
                     for( String filename : files ) {
                         doIndexing( writer, new File( file, filename ) );
                     }
-                    dirDepth --;
                 }
             } else {
             	//TODO, should be able to index all files with properties so no need to check isIndexableFileType
@@ -667,9 +662,9 @@ public abstract class AbstractIndexManager extends Observable {
                 parser.cleanup();
             // index PDF documents
             } else if( ".pdf".equals( extension ) ) {
-                doc = LucenePDFDocument.getDocument( file );
+                //t doc = LucenePDFDocument.getDocument( file );
                 //doc object is re-created, so we need to add the file properties
-                doc.add(new Field("keywords", transform(file.getAbsolutePath()), Field.Store.YES, Field.Index.ANALYZED));
+                //t doc.add(new Field("keywords", transform(file.getAbsolutePath()), Field.Store.YES, Field.Index.ANALYZED));
             // index plain text files
             } else {
                 final DocumentParser parser = new PlainTextDocumentParser();

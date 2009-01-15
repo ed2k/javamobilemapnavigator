@@ -32,6 +32,7 @@ public class LuceneIndexWriter implements AbstractIndexWriter {
     public LuceneIndexWriter( final String name, final boolean create ) throws IOException {
         this.indexWriter = new IndexWriter( name, new StandardAnalyzer(), create, IndexWriter.MaxFieldLength.LIMITED );
         this.indexReader = IndexReader.open( name );
+        System.out.println(indexWriter.getRAMBufferSizeMB());
     }
     
     
