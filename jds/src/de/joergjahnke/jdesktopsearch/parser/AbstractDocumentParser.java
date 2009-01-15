@@ -25,7 +25,7 @@ public abstract class AbstractDocumentParser implements DocumentParser {
      */
     protected StringBuffer content = new StringBuffer();
 
-    
+    public void cleanup(){ content = null;}
     /**
      * Create new parser
      */

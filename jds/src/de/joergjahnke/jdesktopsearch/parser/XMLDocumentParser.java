@@ -49,7 +49,10 @@ public class XMLDocumentParser extends DefaultHandler implements DocumentParser 
      */
     public XMLDocumentParser() {
     }
-    
+    public void cleanup(){
+    	clearElementMap();
+    	//elementBuffer = null;
+    }
     
     /**
      * Get map containing all extracted data of the document

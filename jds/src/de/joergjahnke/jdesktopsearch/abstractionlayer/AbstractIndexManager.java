@@ -404,13 +404,14 @@ public abstract class AbstractIndexManager extends Observable {
             // start some threads which extract searchable data from the indexable files
             final Runnable indexer = new Runnable() {
                 public void run() {
-                    while( isIndexing || !fileQueue.isEmpty()) {
+                    while( isIndexing || !fileQueue.isEmpty() ) {
                         final String path = fileQueue.poll();
                         if( null == path ) {
                             try { Thread.sleep( 100 ); 
                             } catch( InterruptedException e ) {}
                         } else {
-
+                        	//TODO notify a file is being parsed. find out why cannot user notifyObservers 
+                            System.out.println(path);
                         	final File file = new File( path );
 
                             try {
@@ -424,6 +425,9 @@ public abstract class AbstractIndexManager extends Observable {
                                 System.err.println( "Could not add document '" + file + "' to index! The error message was: " + e.getMessage() );
                                 e.printStackTrace();
                             }
+                            // inform about file having been processed
+                            //setChanged();
+                            //notifyObservers( new IndexStatusMessage( null, 1 ) );                            
                         }
                     }
                     System.out.println("out of while");
@@ -436,7 +440,9 @@ public abstract class AbstractIndexManager extends Observable {
             indexersThread.setPriority( Thread.MIN_PRIORITY );
             indexersThread.start();
             // collect all indexable files
+            dirDepth = 0; filesAccessed = 0;
             doIndexing( writer, directory );
+            System.out.println("after doindex");
             // after file list push into fileQue then do real file parsing, so that queue is setup right
             this.isIndexing = false;
             // TODO, need to find a way to kill hanging thread (ex. when PDF is too big)
@@ -479,9 +485,11 @@ public abstract class AbstractIndexManager extends Observable {
      * @param   writer  AbstractIndexWriter to update
      * @param   file    file or directory to index. Subdirectories are also indexed
      */
+    int prev = 0;
+    int dirDepth = 0;
+    int filesAccessed = 0;
     private void doIndexing( final AbstractIndexWriter writer, final File file ) throws IOException {
         if( !this.isIndexing ) return;
-        
         // do not try to index files that cannot be read or that must not be indexed
         final String path = file.getAbsolutePath();
         boolean isExcluded = false;
@@ -523,29 +531,29 @@ public abstract class AbstractIndexManager extends Observable {
                             // TODO: ideally removing deleted files should be started again
                         }
                     }
-                    
+                    dirDepth ++;
+                    if (filesAccessed >(prev+100)){
+                    System.out.println(usedMemory()+" "+filesAccessed+" depth "+dirDepth + " " + path);
+                    prev = filesAccessed;
+                    }
                     // collect all files and sub-directories
                     for( String filename : files ) {
                         doIndexing( writer, new File( file, filename ) );
                     }
+                    dirDepth --;
                 }
             } else {
             	//TODO, should be able to index all files with properties so no need to check isIndexableFileType
             	// comment out for now, to remove it later.
                 // add the file to the result list, if it is a supported type
-                //if( isIndexableFileType( path ) ) {
-                    // inform observers about the current file
-                    setChanged();
-                    notifyObservers( new IndexStatusMessage( path ) );
-                    
+                //if( isIndexableFileType( path ) ) {                   
                     // check if this file has already been indexed
                     final Long lastModified = getDocumentFileDate( path );
-
                     if( ! this.isIndexing ) return;
-
+                    filesAccessed ++;
                     // only update index if last modification date differs from that one already in the index
                     if( null == lastModified || lastModified.longValue() != file.lastModified() ) {
-                        // first delete old content
+                    	// first delete old content
                         if( null != lastModified ) {
                             writer.deleteDocument( file );
                             removeDocument( path );
@@ -554,6 +562,10 @@ public abstract class AbstractIndexManager extends Observable {
                         final String ext = FileUtils.getExtension( path );
 
                         if( this.fileTypes.containsKey( ext ) ) {
+                            // inform observers about the current file
+                        	setChanged();
+                            notifyObservers( new IndexStatusMessage( path ) );
+                        	
                             // then add file to queue of indexable files
                             try {
                                 this.fileQueue.put( path );
@@ -568,10 +580,6 @@ public abstract class AbstractIndexManager extends Observable {
                             addDocument( path, file.lastModified() );
                         }
                     }
-
-                    // inform about file having been processed
-                    setChanged();
-                    notifyObservers( new IndexStatusMessage( null, 1 ) );
                 //}
             }
         }
@@ -656,16 +664,18 @@ public abstract class AbstractIndexManager extends Observable {
                         doc.add( new Field( "keywords", keyword, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
                     }
                 }
+                parser.cleanup();
             // index PDF documents
             } else if( ".pdf".equals( extension ) ) {
                 doc = LucenePDFDocument.getDocument( file );
-                //TODO doc object is re-created, so we need to add the file properties
+                //doc object is re-created, so we need to add the file properties
                 doc.add(new Field("keywords", transform(file.getAbsolutePath()), Field.Store.YES, Field.Index.ANALYZED));
             // index plain text files
             } else {
                 final DocumentParser parser = new PlainTextDocumentParser();
                 parser.parse( file );
                 doc.add( new Field( "contents", parser.getContent(), Field.Store.YES, Field.Index.ANALYZED ) );
+                parser.cleanup();
             }
         } catch( Exception e ) {
             // data could not be extracted

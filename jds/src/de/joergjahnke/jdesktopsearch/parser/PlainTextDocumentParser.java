@@ -42,7 +42,6 @@ public class PlainTextDocumentParser extends AbstractDocumentParser {
         }
 
         reader.close();
-        
     }
     
     public DocumentParser newInstance() {

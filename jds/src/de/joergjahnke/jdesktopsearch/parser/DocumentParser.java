@@ -75,7 +75,7 @@ public interface DocumentParser {
      * @return  DocumentParser instance of the same type
      */
     public DocumentParser newInstance();
-    
+    public void cleanup();
     /**
      * Get the file types that this parser may parse
      *
