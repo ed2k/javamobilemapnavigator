@@ -7,7 +7,6 @@
 package de.joergjahnke.jdesktopsearch.abstractionlayer;
 
 
-import java.io.File;
 import java.io.IOException;
 import org.apache.lucene.document.Document;
 
@@ -32,7 +31,7 @@ public interface AbstractIndexWriter {
      * @param   file    file to remove
      * @throws  IOException if the document cannot be deleted
      */
-    public void deleteDocument( File file ) throws IOException;
+    public void deleteDocument( String file ) throws IOException;
     
     /**
      * Optimize the index.
