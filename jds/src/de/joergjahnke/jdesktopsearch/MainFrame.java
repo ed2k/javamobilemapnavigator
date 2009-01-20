@@ -30,7 +30,7 @@ import javax.swing.SwingWorker;
 
 /**
  * Main window of the JDesktopSearch application
- * 
+ * TODO, try build the file list from indexdb
  * @author Jörg Jahnke (joergjahnke@users.sourceforge.net)
  */
 public class MainFrame extends JFrame {
@@ -45,7 +45,7 @@ public class MainFrame extends JFrame {
     /**
      * program version
      */
-    private final static String VERSION = "1.4.2";
+    private final static String VERSION = "2.0.0";
     /**
      * URL of the online help page
      */

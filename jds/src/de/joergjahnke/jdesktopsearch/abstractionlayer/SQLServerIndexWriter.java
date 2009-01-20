@@ -9,7 +9,6 @@ package de.joergjahnke.jdesktopsearch.abstractionlayer;
 
 import de.joergjahnke.common.util.StringUtils;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.Connection;
@@ -263,7 +262,7 @@ public class SQLServerIndexWriter implements AbstractIndexWriter {
         if( null != ex ) throw new IOException( ex.getMessage() );
     }
     
-    public synchronized void deleteDocument( final File file ) throws IOException {
+    public synchronized void deleteDocument( final String file ) throws IOException {
         SQLException ex = null;
         
         try {

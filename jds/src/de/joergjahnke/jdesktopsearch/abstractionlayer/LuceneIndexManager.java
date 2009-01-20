@@ -96,6 +96,8 @@ public class LuceneIndexManager extends AbstractIndexManager {
         } catch( IOException e ) {
             throw new RuntimeException( "Could not save indexed files! The error message was:\n" + e.getMessage() );
         }
+        System.out.println(getNumberOfIndexedFiles()+"total ");
+        
     }
 
     
@@ -140,7 +142,7 @@ public class LuceneIndexManager extends AbstractIndexManager {
             e.printStackTrace();
         }
     }
-    
+    // list files that start with given directories
     public final Set<String> listFiles( String directory ) {
         final Set<String> result = new HashSet<String>();
         
@@ -149,9 +151,10 @@ public class LuceneIndexManager extends AbstractIndexManager {
         for( String filename : this.indexedFiles.tailMap( directory ).keySet() ) {
             if( filename.startsWith( directory ) ) {
                 // only add files in the given directory but not those in subdirectories
-                if( filename.substring( directory.length() ).indexOf( File.separator ) < 0 ) {
+                //if( filename.substring( directory.length() ).indexOf( File.separator ) < 0 ) {
+            	System.out.println(filename);
                     result.add( filename );
-                }
+                //}
             } else {
                 // we can exit when the first files from another directory is found as we have an ordered set
                 break;

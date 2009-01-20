@@ -7,7 +7,6 @@
 package de.joergjahnke.jdesktopsearch.abstractionlayer;
 
 
-import java.io.File;
 import java.io.IOException;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -32,7 +31,6 @@ public class LuceneIndexWriter implements AbstractIndexWriter {
     public LuceneIndexWriter( final String name, final boolean create ) throws IOException {
         this.indexWriter = new IndexWriter( name, new StandardAnalyzer(), create, IndexWriter.MaxFieldLength.LIMITED );
         this.indexReader = IndexReader.open( name );
-        System.out.println(indexWriter.getRAMBufferSizeMB());
     }
     
     
@@ -40,11 +38,12 @@ public class LuceneIndexWriter implements AbstractIndexWriter {
         this.indexWriter.addDocument( doc );
     }
     
-    public void deleteDocument( final File file ) throws IOException {
-        this.indexReader.deleteDocuments( new Term( "path", file.getAbsolutePath() ) );
+    public void deleteDocument( final String file ) throws IOException {    	
+        this.indexWriter.deleteDocuments( new Term( "path", file ) );
     }
     
     public final void close() throws IOException {
+        System.out.println("close total "+indexReader.maxDoc());
         this.indexReader.close();
         this.indexWriter.close();
     }

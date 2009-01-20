@@ -56,7 +56,7 @@ public abstract class AbstractIndexManager extends Observable {
     /**
      * debugging is switched on?
      */
-    public final static boolean DEBUG = false;
+    public final static boolean DEBUG = true;
     /**
      * notification of the Observable that will trigger the dialog to be made visible
      */
@@ -490,7 +490,7 @@ public abstract class AbstractIndexManager extends Observable {
         // do not try to index files that cannot be read or that must not be indexed
         final String path = file.getAbsolutePath();
         boolean isExcluded = false;
-        
+
         for( String exclusion : this.exclusions ) {
             if( path.matches( exclusion ) ) {
                 isExcluded = true;
@@ -502,6 +502,7 @@ public abstract class AbstractIndexManager extends Observable {
             if( file.isDirectory() ) {
                 // get all files inside the directory
                 final String[] filesArray = file.list();
+                System.out.println(path);
 
                 // an IO error could occur
                 if( filesArray != null ) {
@@ -509,25 +510,31 @@ public abstract class AbstractIndexManager extends Observable {
                     
                     final Set<String> files = new HashSet<String>( Arrays.asList( filesArray ) );
                 
-                    // remove all files in current index which do no longer exist (but not root directories)
-                    if( ! getRootDirectories().contains( path ) ) {
+                    // remove all files in current index which no longer exist (but not root directories)
+                    //if( ! getRootDirectories().contains( path ) ) {
                         // get all files from the current path that are stored in the index ...
                         final Set<String> existingFiles = listFiles( path );
-                        
                         // ... remove the files now found in that path ...
-                        existingFiles.removeAll( files );
+                        for (String f : existingFiles){
+                        	for (String n: files){
+                        		if (n.startsWith(f)){
+                                	existingFiles.remove(f);
+                        			break;                        		
+                        		}
+                        	}
+                        }
                         
                         // ... and delete those files that are left
+                        // TODO delete files in indexedFiles
                         try {
                             for( String filename : existingFiles ) {
-                                if( DEBUG ) 
-                                	System.err.println( this.getClass().getName() + ": Removing file " + new File( file, filename ).getAbsolutePath() );
-                                writer.deleteDocument( new File( file, filename ) );
+                                if( DEBUG )	System.err.println( "index removing file " + filename  );
+                                writer.deleteDocument( filename );
                             }
                         } catch( ConcurrentModificationException e ) {
                             // TODO: ideally removing deleted files should be started again
                         }
-                    }
+                    //}
                     if (filesAccessed >(prev+500)){
                     System.out.println((usedMemory()/1000000)+" "+filesAccessed+" " + path);
                     prev = filesAccessed;
@@ -550,7 +557,7 @@ public abstract class AbstractIndexManager extends Observable {
                     if( null == lastModified || lastModified.longValue() != file.lastModified() ) {
                     	// first delete old content
                         if( null != lastModified ) {
-                            writer.deleteDocument( file );
+                            writer.deleteDocument( path );
                             removeDocument( path );
                         }
                         // document data can be extracted?
@@ -613,7 +620,8 @@ public abstract class AbstractIndexManager extends Observable {
         doc.add( new Field( "modified", 
         		DateTools.timeToString( file.lastModified(),DateTools.Resolution.HOUR ), 
         		Field.Store.YES, Field.Index.NOT_ANALYZED ) );
-        doc.add(new Field("keywords", transform(file.getAbsolutePath()), Field.Store.YES, Field.Index.ANALYZED));
+        //file path info is stored already no need to store again
+        doc.add(new Field("keywords", transform(file.getAbsolutePath()), Field.Store.NO, Field.Index.ANALYZED));
         return doc;
     }
 
@@ -663,9 +671,9 @@ public abstract class AbstractIndexManager extends Observable {
                 parser.cleanup();
             // index PDF documents
             } else if( ".pdf".equals( extension ) ) {
-                //t doc = LucenePDFDocument.getDocument( file );
+                doc = LucenePDFDocument.getDocument( file );
                 //doc object is re-created, so we need to add the file properties
-                //t doc.add(new Field("keywords", transform(file.getAbsolutePath()), Field.Store.YES, Field.Index.ANALYZED));
+                doc.add(new Field("keywords", transform(file.getAbsolutePath()), Field.Store.NO, Field.Index.ANALYZED));
             // index plain text files
             } else {
                 final DocumentParser parser = new PlainTextDocumentParser();
