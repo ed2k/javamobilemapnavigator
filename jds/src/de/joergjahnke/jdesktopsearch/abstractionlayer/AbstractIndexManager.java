@@ -101,6 +101,7 @@ public abstract class AbstractIndexManager extends Observable {
     private final Properties properties;
     // currently used writer
     private AbstractIndexWriter writer = null;
+    protected String currentDirectory = "";
     /**
      * index name
      */
@@ -177,7 +178,7 @@ public abstract class AbstractIndexManager extends Observable {
      */
     public boolean exists() {
         try {
-            return !getRootDirectories().isEmpty();
+            return !getRootDirectories("").isEmpty();
         } catch( Exception e ) {
             e.printStackTrace();
             return false;
@@ -235,7 +236,7 @@ public abstract class AbstractIndexManager extends Observable {
         // show indexed directories
         propertiesText.append( "Indexed directories:\n" );
         
-        final Collection<String> directoryNames = new TreeSet<String>( getRootDirectories() );
+        final Collection<String> directoryNames = new TreeSet<String>( getRootDirectories("") );
         
         for( String directoryName : directoryNames ) {
             propertiesText.append( directoryName );
@@ -250,6 +251,7 @@ public abstract class AbstractIndexManager extends Observable {
      * Create a new index
      */
     public void clear() throws IOException {
+    	currentDirectory = "";
         // create new index database
         this.writer = getIndexWriter( true );
         this.writer.close();
@@ -268,9 +270,13 @@ public abstract class AbstractIndexManager extends Observable {
         notifyObservers( new IndexStatusMessage( IndexStatusMessage.EVENT_LONG_OPERATION_STARTED ) );
         
         // iterate over all root directories
-        for( String rootDir : getRootDirectories() ) {
+        for( String rootDir : getRootDirectories("") ) {
             // update index
-            update( new File( rootDir ) );
+        	System.out.println("start index "+rootDir);
+        	if ((rootDir.compareTo(currentDirectory) > 0 ) 
+        			|| currentDirectory.startsWith(rootDir)) {
+        		update( new File( rootDir ) );
+        	}
         }
         
         // notify observers about the end of the indexing process
@@ -291,6 +297,7 @@ public abstract class AbstractIndexManager extends Observable {
         // add new root directory
         addRootDirectory( directory.getAbsolutePath() );
          // update index
+        currentDirectory = "";
         update( directory );
         
         // notify observers about the end of the indexing process
@@ -308,7 +315,9 @@ public abstract class AbstractIndexManager extends Observable {
         
         // do optimization
         this.writer = getIndexWriter( false );
-        try { this.writer.optimize(); } catch( IOException e ) {}
+        try { this.writer.optimize(); } catch( IOException e ) {
+        	System.out.println(e.getMessage());
+        }
         this.writer.close();
         this.writer = null;
         
@@ -417,7 +426,8 @@ public abstract class AbstractIndexManager extends Observable {
                                 // get document data
                                 Document doc = createDocument( file );
                                 writer.addDocument( doc );
-                                addDocument( path, file.lastModified() );
+                                // don't save file into a seperate list
+                                //addDocument( path, file.lastModified() );
 
                             } catch( IOException e ) {
                                 // file could not be added to the index
@@ -498,72 +508,83 @@ public abstract class AbstractIndexManager extends Observable {
             }
         }
                 
-        if( ( ! file.isHidden() || this.doIndexHidden ) && ! isExcluded && file.canRead() ) {
-            if( file.isDirectory() ) {
-                // get all files inside the directory
-                final String[] filesArray = file.list();
-                System.out.println(path);
+        if( ( file.isHidden() && !this.doIndexHidden ) || isExcluded || !file.canRead() ) return;
+        if( file.isDirectory() ) {
+            // get all files inside the directory
+            final String[] filesArray = file.list();
 
-                // an IO error could occur
-                if( filesArray != null ) {
-                    if( !this.isIndexing ) return;
-                    
-                    final Set<String> files = new HashSet<String>( Arrays.asList( filesArray ) );
+            // an IO error could occur
+            if( filesArray == null ) return;
+            if( !this.isIndexing ) return;
                 
-                    // remove all files in current index which no longer exist (but not root directories)
-                    //if( ! getRootDirectories().contains( path ) ) {
-                        // get all files from the current path that are stored in the index ...
-                        final Set<String> existingFiles = listFiles( path );
-                        // ... remove the files now found in that path ...
-                        for (String f : existingFiles){
-                        	for (String n: files){
-                        		if (n.startsWith(f)){
-                                	existingFiles.remove(f);
-                        			break;                        		
-                        		}
-                        	}
-                        }
-                        
-                        // ... and delete those files that are left
-                        // TODO delete files in indexedFiles
-                        try {
-                            for( String filename : existingFiles ) {
-                                if( DEBUG )	System.err.println( "index removing file " + filename  );
-                                writer.deleteDocument( filename );
-                            }
-                        } catch( ConcurrentModificationException e ) {
-                            // TODO: ideally removing deleted files should be started again
-                        }
-                    //}
-                    if (filesAccessed >(prev+500)){
-                    System.out.println((usedMemory()/1000000)+" "+filesAccessed+" " + path);
-                    prev = filesAccessed;
+            final TreeSet<String> files = new TreeSet<String>();
+            for (int i=0;i<filesArray.length;i++ ) files.add(filesArray[i]);
+                /* TODO: the delete part is costly, move out into a seperate function
+                // remove all files in current index which no longer exist (but not root directories)
+                //if( ! getRootDirectories().contains( path ) ) {
+                    // get all files from the current path that are stored in the index ...
+                    final Set<String> existingFiles = listFiles( path );
+                    // ... remove the files now found in that path ...
+                    for (String f : existingFiles){
+                    	for (String n: files){
+                    		if (n.startsWith(f)){
+                            	existingFiles.remove(f);
+                    			break;                        		
+                    		}
+                    	}
                     }
-                    // collect all files and sub-directories
-                    for( String filename : files ) {
-                        doIndexing( writer, new File( file, filename ) );
+                    
+                    // ... and delete those files that are left
+                    // TODO delete files in indexedFiles
+                    try {
+                        for( String filename : existingFiles ) {
+                            if( DEBUG )	System.err.println( "index removing file " + filename  );
+                            writer.deleteDocument( filename );
+                        }
+                    } catch( ConcurrentModificationException e ) {
+                        // TODO: ideally removing deleted files should be started again
                     }
-                }
-            } else {
-            	//TODO, should be able to index all files with properties so no need to check isIndexableFileType
-            	// comment out for now, to remove it later.
-                // add the file to the result list, if it is a supported type
-                //if( isIndexableFileType( path ) ) {                   
-                    // check if this file has already been indexed
-                    final Long lastModified = getDocumentFileDate( path );
-                    if( ! this.isIndexing ) return;
-                    filesAccessed ++;
-                    // only update index if last modification date differs from that one already in the index
-                    if( null == lastModified || lastModified.longValue() != file.lastModified() ) {
-                    	// first delete old content
-                        if( null != lastModified ) {
+                //}
+                 * 
+                 */
+            if (filesAccessed >(prev+2000)){
+                System.out.println((usedMemory()/1000000)+" "+filesAccessed+" " + path);
+                System.out.println("update pointer "+currentDirectory);
+                prev = filesAccessed;                
+            }
+            // TODO: change the order of which file to visit, first files and new/unvisited dir, last update dir
+            // change recursive to queue, so that we can save the work order into disk and survive the restart
+            // to continue indexing, easy to limit index depth
+            // collect all files and sub-directories            
+            for( String filename : files ) {
+               File f = new File( file, filename );
+               String p = f.getAbsolutePath();
+               if (p.compareTo(currentDirectory)>0 || currentDirectory.startsWith(p)){
+                 doIndexing( writer, new File( file, filename ) );
+               }
+            }
+            if ( isIndexing){
+            	currentDirectory = path;            	            	
+            }
+        } else {
+        	//TODO, should be able to index all files with properties so no need to check isIndexableFileType
+        	// comment out for now, to remove it later.
+        	// add the file to the result list, if it is a supported type
+        	// check if this file has already been indexed
+        	final Long lastModified = getDocumentFileDate( path );
+        	if( ! this.isIndexing ) return;
+            filesAccessed ++;
+            // only update index if last modification date differs from that one already in the index
+            if( null == lastModified || lastModified.longValue() != file.lastModified() ) {
+            	// first delete old content
+            	if( null != lastModified ) {
                             writer.deleteDocument( path );
                             removeDocument( path );
-                        }
-                        // document data can be extracted?
-                        final String ext = FileUtils.getExtension( path );
+            	}
+            	// document data can be extracted?
+            	final String ext = FileUtils.getExtension( path );
 
-                        if( this.fileTypes.containsKey( ext ) ) {
+            	if( this.fileTypes.containsKey( ext ) ) {
                             // inform observers about the current file
                         	setChanged();
                             notifyObservers( new IndexStatusMessage( path ) );
@@ -575,16 +596,14 @@ public abstract class AbstractIndexManager extends Observable {
                                 // we were interrupted and stop waiting for the queue
                             	if(DEBUG)System.err.println("In which condition are we interrupted? "+e.getMessage());
                             }
-                        } else {
+            	} else {
                             // otherwise only record the document properties
                             final Document doc = createPropertiesDocument( file );
                             writer.addDocument( doc );
-                            addDocument( path, file.lastModified() );
-                        }
-                    }
-                //}
-            }
-        }
+                            //addDocument( path, file.lastModified() );
+            	}
+            }	
+        }        
     }
 
     String transform(String s){
@@ -717,10 +736,11 @@ public abstract class AbstractIndexManager extends Observable {
     
     /**
      * Get names of root directories for the index
+     * @param newParam TODO
      *
      * @return  set of directory names
      */
-    public abstract Set<String> getRootDirectories();
+    public abstract Set<String> getRootDirectories(String newParam);
     
     /**
      * Add a new root directory to the index
