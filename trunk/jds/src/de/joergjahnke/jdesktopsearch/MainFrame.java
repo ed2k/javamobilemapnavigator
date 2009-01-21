@@ -44,8 +44,9 @@ public class MainFrame extends JFrame {
     private final static String APP_NAME = "JDesktopSearch";
     /**
      * program version
+     * used mainly to index large volume of file names  
      */
-    private final static String VERSION = "2.0.0";
+    private final static String VERSION = "2.0.1";
     /**
      * URL of the online help page
      */

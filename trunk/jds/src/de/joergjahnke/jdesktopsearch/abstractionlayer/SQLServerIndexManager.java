@@ -158,7 +158,7 @@ public class SQLServerIndexManager extends AbstractIndexManager {
     }
 
     
-    public Set<String> getRootDirectories() {
+    public Set<String> getRootDirectories(String newParam) {
         final Set<String> result = new HashSet<String>();
 
         try {
@@ -183,7 +183,7 @@ public class SQLServerIndexManager extends AbstractIndexManager {
     }
     
     public void addRootDirectory( final String filename ) throws IOException {
-        if( ! this.getRootDirectories().contains( filename ) ) {
+        if( ! this.getRootDirectories("").contains( filename ) ) {
             try {
                 Connection con = getAutoClosingConnection();
                 PreparedStatement stmt = con.prepareStatement( "INSERT INTO RootDir_ ( Name ) VALUES ( ? )" );

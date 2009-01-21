@@ -50,10 +50,14 @@ import org.apache.lucene.search.Searcher;
  * @author Jörg Jahnke (joergjahnke@users.sourceforge.net)
  */
 public class LuceneIndexManager extends AbstractIndexManager {
+	//TODO , either put hard limit of the size or phase out in memory storage. needs to hold 6M files.
     // list of indexed files with their modification date
+	private int depth;
     private SortedMap<String,Long> indexedFiles = Collections.synchronizedSortedMap( new TreeMap<String,Long>() );
     // list of indexed root directories
-    private Set<String> indexedRootDirectories = Collections.synchronizedSet( new HashSet<String>() );
+    // TODO: each entry means its sub dir is visited once
+    //private SortedMap<String,Long> indexedRootDirectories = Collections.synchronizedSet( new TreeMap<String,Long>() );
+    private SortedMap<String,Long> indexedRootDirectories = Collections.synchronizedSortedMap( new TreeMap<String,Long>() );
     // name of file containing list of indexed files
     private final String indexedFilesName;
     // has the list of indexed files to be flushed to disk after a change?
@@ -81,7 +85,8 @@ public class LuceneIndexManager extends AbstractIndexManager {
     public final void clear() throws IOException {
         super.clear();
         this.indexedFiles = Collections.synchronizedSortedMap( new TreeMap<String,Long>() );
-        this.indexedRootDirectories = Collections.synchronizedSet( new HashSet<String>() );
+        //this.indexedRootDirectories = Collections.synchronizedSet( new HashSet<String>() );
+        this.indexedRootDirectories = Collections.synchronizedSortedMap( new TreeMap<String,Long>() );
         this.wasChanged = true;
         saveIndexedFiles();
     }
@@ -103,6 +108,7 @@ public class LuceneIndexManager extends AbstractIndexManager {
     
     public final int getNumberOfIndexedFiles() {
         return this.indexedFiles.size();
+    	//todo return writer.maxDoc();
     }
     
     public final Map<String,Integer> getNumberOfIndexedFilesPerType() {
@@ -123,17 +129,18 @@ public class LuceneIndexManager extends AbstractIndexManager {
     }
     
     public final Long getDocumentFileDate( final String file ) {
-        return this.indexedFiles.get( file );
+        return this.indexedFiles.get( file );        
     }
     
     
-    public final Set<String> getRootDirectories() {
-        return this.indexedRootDirectories;
+    public final Set<String> getRootDirectories(String startDir) {
+        //return this.indexedRootDirectories;       
+        return indexedRootDirectories.keySet();         
     }
     
     public final void addRootDirectory( final String filename ) {
         // add the directory
-        this.indexedRootDirectories.add( filename );
+        this.indexedRootDirectories.put( filename,0L );
         this.wasChanged = true;
         // save new list of indexed files
         try {
@@ -257,7 +264,9 @@ public class LuceneIndexManager extends AbstractIndexManager {
         final ObjectInputStream istream = new ObjectInputStream( new BufferedInputStream( new FileInputStream( new File( this.indexedFilesName ) ) ) );
 
         this.indexedFiles = Collections.synchronizedSortedMap( new TreeMap<String,Long>( (Map<String,Long>)istream.readObject() ) );
-        this.indexedRootDirectories = (Set<String>)istream.readObject();
+        //this.indexedRootDirectories = (Set<String>)istream.readObject();
+        this.indexedRootDirectories = Collections.synchronizedSortedMap( new TreeMap<String,Long>( (Map<String,Long>)istream.readObject()));
+        currentDirectory = (String)istream.readObject();
         istream.close();
         // no changes have been done yet
         this.wasChanged = false;
@@ -275,6 +284,7 @@ public class LuceneIndexManager extends AbstractIndexManager {
 
             ostream.writeObject( this.indexedFiles );
             ostream.writeObject( this.indexedRootDirectories );
+            ostream.writeObject(currentDirectory);
             ostream.close();
             // all changes were saved
             this.wasChanged = false;
