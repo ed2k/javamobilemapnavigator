@@ -273,6 +273,7 @@ public abstract class AbstractIndexManager extends Observable {
         for( String rootDir : getRootDirectories("") ) {
             // update index
         	System.out.println("start index "+rootDir);
+        	System.out.println("pointer "+currentDirectory);
         	if ((rootDir.compareTo(currentDirectory) > 0 ) 
         			|| currentDirectory.startsWith(rootDir)) {
         		update( new File( rootDir ) );
@@ -286,7 +287,7 @@ public abstract class AbstractIndexManager extends Observable {
     
     /**
      * Add new directory to the existing index
-     *
+     * TODO: remove child directory.
      * @param   directory   directory to index (recursively)
      */
     public void add( final File directory ) throws IOException, ClassNotFoundException {
@@ -509,6 +510,13 @@ public abstract class AbstractIndexManager extends Observable {
         }
                 
         if( ( file.isHidden() && !this.doIndexHidden ) || isExcluded || !file.canRead() ) return;
+        // if it is a symbolic link, no indexing
+        if ( !file.getAbsolutePath().equals(file.getCanonicalPath())) {
+        	//System.out.println("not handle symbolic link "+path);
+        	return;
+        }
+        
+        
         if( file.isDirectory() ) {
             // get all files inside the directory
             final String[] filesArray = file.list();
@@ -547,7 +555,7 @@ public abstract class AbstractIndexManager extends Observable {
                 //}
                  * 
                  */
-            if (filesAccessed >(prev+2000)){
+            if (filesAccessed >(prev+5000)){
                 System.out.println((usedMemory()/1000000)+" "+filesAccessed+" " + path);
                 System.out.println("update pointer "+currentDirectory);
                 prev = filesAccessed;                
@@ -606,7 +614,7 @@ public abstract class AbstractIndexManager extends Observable {
         }        
     }
 
-    String transform(String s){
+	String transform(String s){
     	byte[] bytes = s.getBytes();
 
     	for (int i=0;i<bytes.length;i++){
