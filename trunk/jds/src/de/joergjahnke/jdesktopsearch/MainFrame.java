@@ -46,7 +46,7 @@ public class MainFrame extends JFrame {
      * program version
      * used mainly to index large volume of file names  
      */
-    private final static String VERSION = "2.0.1";
+    private final static String VERSION = "2.0.2";
     /**
      * URL of the online help page
      */

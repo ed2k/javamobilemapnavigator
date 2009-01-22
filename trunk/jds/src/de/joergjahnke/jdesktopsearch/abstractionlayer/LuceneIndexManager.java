@@ -73,6 +73,7 @@ public class LuceneIndexManager extends AbstractIndexManager {
         
         try {
             loadIndexedFiles();
+            System.out.println("load pointer " +currentDirectory);
         } catch( Exception e ) {
             System.err.println( "Could not load indexed files!" );
         }
