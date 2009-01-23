@@ -202,7 +202,7 @@ public class MainFrame extends JFrame {
                     for( File file : fileDialog.getSelectedFiles() ) {
                         indexManager.add( file );
                     }
-                    
+
                     return null;
                 }
             };

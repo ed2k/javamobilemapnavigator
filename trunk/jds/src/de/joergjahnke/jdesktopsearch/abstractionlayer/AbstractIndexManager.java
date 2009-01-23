@@ -268,15 +268,15 @@ public abstract class AbstractIndexManager extends Observable {
         // notify observers about the start of the indexing process
         setChanged();
         notifyObservers( new IndexStatusMessage( IndexStatusMessage.EVENT_LONG_OPERATION_STARTED ) );
-        
+
         // iterate over all root directories
         for( String rootDir : getRootDirectories("") ) {
             // update index
         	System.out.println("start index "+rootDir);
-        	System.out.println("pointer "+currentDirectory);
-        	if ((rootDir.compareTo(currentDirectory) > 0 ) 
-        			|| currentDirectory.startsWith(rootDir)) {
+        	if (toSearch(rootDir,currentDirectory)) {
+            	System.out.println("sp "+currentDirectory);
         		update( new File( rootDir ) );
+        		System.out.println("ep "+currentDirectory);
         	}
         }
         
@@ -567,7 +567,7 @@ public abstract class AbstractIndexManager extends Observable {
             for( String filename : files ) {
                File f = new File( file, filename );
                String p = f.getAbsolutePath();
-               if (p.compareTo(currentDirectory)>0 || currentDirectory.startsWith(p)){
+               if (toSearch(p,currentDirectory)){
                  doIndexing( writer, new File( file, filename ) );
                }
             }
@@ -613,6 +613,13 @@ public abstract class AbstractIndexManager extends Observable {
             }	
         }        
     }
+
+    // p1 is path to search, p2 is the current pointer
+	private boolean toSearch(String p1, String p2) {
+		if (p1.compareTo(p2)>0 || (!p2.equals(p1) && p2.startsWith(p1))) return true;
+		return false;
+	}
+
 
 	String transform(String s){
     	byte[] bytes = s.getBytes();
