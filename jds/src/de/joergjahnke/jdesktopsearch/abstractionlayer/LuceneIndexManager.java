@@ -141,7 +141,14 @@ public class LuceneIndexManager extends AbstractIndexManager {
     
     public final void addRootDirectory( final String filename ) {
         // add the directory
-        this.indexedRootDirectories.put( filename,0L );
+        for (String f: indexedRootDirectories.keySet() ){
+        	// just a child directory
+        	if (filename.startsWith(f))return;
+        	if (f.startsWith(filename)){
+        		indexedRootDirectories.remove(f);
+        	}
+        }
+		indexedRootDirectories.put( filename,0L );
         this.wasChanged = true;
         // save new list of indexed files
         try {
@@ -279,7 +286,7 @@ public class LuceneIndexManager extends AbstractIndexManager {
      * @see de.joergjahnke.jdesktopsearch.abstractionlayer.LuceneIndexManager#loadIndexedFiles
      */
     protected synchronized void saveIndexedFiles() throws IOException {
-        if( this.wasChanged ) {
+        //if( this.wasChanged ) {
             // save changes
             final ObjectOutputStream ostream = new ObjectOutputStream( new BufferedOutputStream( new FileOutputStream( new File( this.indexedFilesName ) ) ) );
 
@@ -289,6 +296,6 @@ public class LuceneIndexManager extends AbstractIndexManager {
             ostream.close();
             // all changes were saved
             this.wasChanged = false;
-        }
+        //}
     }
 }

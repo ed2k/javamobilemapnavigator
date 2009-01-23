@@ -71,7 +71,8 @@ public class CommandLineUtilities implements Observer {
         } else if( "add".equals( args[ 0 ] ) && args.length == 2 ) {
             System.out.println( "Adding directory " + args[ 1 ] + " to index..." );
             this.indexManager.addObserver( this );
-            this.indexManager.add( new File( args[ 1 ] ) );
+            this.indexManager.add( new File(args[ 1 ]) );
+            
             this.indexManager.deleteObserver( this );
         } else if( "update".equals( args[ 0 ] ) && args.length == 1 ) {
             System.out.println( "Updating existing index..." );

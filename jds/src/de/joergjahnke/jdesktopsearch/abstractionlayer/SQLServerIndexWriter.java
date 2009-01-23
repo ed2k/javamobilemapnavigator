@@ -269,7 +269,7 @@ public class SQLServerIndexWriter implements AbstractIndexWriter {
             // get file-ID
             PreparedStatement findFileStmt = con.prepareStatement( "SELECT ID AS \"ID\" FROM File_ WHERE Name = ?" );
             
-            findFileStmt.setString( 1, file.getAbsolutePath() );
+            findFileStmt.setString( 1, file );
             
             ResultSet rs = findFileStmt.executeQuery();
             
