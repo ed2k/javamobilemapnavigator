@@ -1,0 +1,1 @@
+example implementation to navigate a tiled map (like gmaps) in mobile phone. run in sony ericsson.
